@@ -148,6 +148,7 @@ In typical use, just slap some `<new-review>` at your body:
        */
       hresponse: function(request) {
         $('.out').hide();
+        this.clearInputData();
         this.fire('success');
       },
       /**
@@ -165,6 +166,16 @@ In typical use, just slap some `<new-review>` at your body:
        */
       hideDialog: function(){
         $('.out').hide();
+      },
+      /**
+       * method clear input data
+       *
+       * @method clearInputData
+       */
+      clearInputData: function(){
+        this.$.id_username.value = '';
+        this.$.id_product.value = '';
+        this.$.id_body.value = '';
       }
     });
   </script>

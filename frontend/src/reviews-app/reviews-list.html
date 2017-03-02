@@ -107,7 +107,7 @@ Wham! It's all reviews now!
        * @method updateReviews
        */
       updateReviews: function() {
-        this.$.ajax_list.generateRequest();
+        return this.$.ajax_list.generateRequest();
       },
       /**
        * Fired when geeting `data` from backend server.
