@@ -1,0 +1,6 @@
+{
+  "name": "reviews",
+  "short_name": "reviews",
+  "start_url": "/",
+  "display": "standalone"
+}

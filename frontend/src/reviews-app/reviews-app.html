@@ -1,0 +1,20 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="reviews-list.html">
+
+<dom-module id="reviews-app" attributes="params">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <reviews-list apiroot="http://yiipolymer.home">Loading...</reviews-list>
+  </template>
+
+  <script>
+        
+    Polymer({
+      is: 'reviews-app',
+    });
+  </script>
+</dom-module>

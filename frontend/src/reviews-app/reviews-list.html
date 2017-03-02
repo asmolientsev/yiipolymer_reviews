@@ -1,0 +1,101 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+<link rel="import" href="new-review.html">
+
+
+<dom-module id="reviews-list" attributes="params">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      .menu {
+        width:30%;
+        float:left;
+      }
+      .view {
+        margin-left: 40%;
+      }
+      .hidden-body {
+        position: absolute;
+        left:-100000px;
+      }
+      article {
+        padding: 10px 20px;
+      }
+      article.active {
+        background-color: #eee;
+        color: black;
+      }
+      .pl20 {
+        padding-left: 20px;
+      }
+      .mb10 {
+        margin-bottom: 10px;
+      }
+    </style>
+    <iron-ajax
+        id="ajax_list"
+        url="{{endpoint}}"
+        params="{params}"
+        handle-as="json"
+        last-response="{{data}}"
+        on-response="hresponse">
+    </iron-ajax>
+    <div class="pl20 mb10">
+        <h1>Reviews</h1>
+        <new-review url="{{endpoint}}" id="new_review"></new-review>
+    </div>
+    <div class="menu">
+        <template is="dom-repeat" items="{{data}}" id="reviews-template">
+            <article id="{{item._id}}">
+               <a href="javascript:void(0)" class="checkuser">User: {{item.username}}, Product: {{item.product}} </a> 
+               <span class="hidden-body body">{{item.body}}</span>
+               <span class="hidden-body created">{{item.created_at}}</span>
+               <br/>
+            </article>
+        </template>
+    </div>
+    <div class="view">
+        
+    </div>
+  </template>
+
+  <script>
+    
+            $(document).on('click', '.checkuser', function(){
+                $('article').removeClass('active');
+                $(this).parent().addClass('active');
+                var _text = $(this).next().html();
+                var _time = new Date(parseInt($(this).next().next().html()));
+                $('.view').html(_text+', <br/>created:'+_time);
+                return false;
+            });
+
+    Polymer({
+
+      is: 'reviews-list',
+
+      properties: {
+        apiroot: String,
+      },
+
+      ready: function() {
+        this.endpoint = this.apiroot + '/api/reviews';
+        this.listen(this.$.new_review, 'success', 'updateReviews');
+        this.$.ajax_list.generateRequest();
+        
+      },
+      updateReviews: function() {
+        this.$.ajax_list.generateRequest();
+      },
+      hresponse: function(){
+        var ironAjax = this.$.ajax_list;
+        if (ironAjax.lastResponse!=undefined){
+            setTimeout(function(){$('.checkuser').eq(0).click();},500);
+        }
+      }
+    });
+  </script>
+</dom-module>

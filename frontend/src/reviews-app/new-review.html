@@ -1,0 +1,130 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+
+<dom-module id="new-review" attributes="url">
+  <style>
+    .out {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      top:0;
+      left:0;
+      display:none;
+    }
+    .in {
+      position: fixed;
+      top:20%;
+      left:30%;
+      width:400px;
+      height:360px;
+      background-color: white; 
+      padding: 20px;
+    }
+    label {
+      display: block;
+    }
+    input, textarea {
+      width: 90%;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .p10 {
+      padding: 10px 0;
+    }
+    .add {
+      /*display: block;*/
+      background-color: rgb(21,101,192);
+      color:white;
+      padding:5px 15px;
+      border-radius: 5px;
+      border:none;
+    }
+    .errors {
+      font-style: italic;
+    }
+    .close {
+      float:right;
+    }
+  </style>
+  <template>
+
+    <iron-ajax
+        id="ajax_new"
+        handle-as="json"
+        method="POST"
+        on-response="hresponse"
+        debounce-duration="3000"
+        url="{{url}}">
+    </iron-ajax>
+    <div>
+      <button on-click="showdialog" class="add">Add</button>
+    </div>
+    <div class="out">
+      <div class="in">
+          <a href="javascript:void(0)" class="close" on-click="hideDialog">close</a>
+          <h2>Add new review</h2>
+          <div class="p10">* - field required</div>
+          <div>
+              <label for="id_username">Username:*</label>
+              <input type="text" name="username" id="id_username" required>
+          </div>
+          <div>
+              <label for="id_product">Product:*</label>
+              <input type="text" name="product" id="id_product" required>
+          </div>
+          <div>
+              <label for="id_body">Review:*</label>
+              <textarea name="body" id="id_body" required></textarea>
+          </div>
+          <button on-click="setajax" class="add">Send data</button>
+          <div class="errors"></div>
+      </div>
+    <div>
+  </template>
+  <script>
+    function checkInput(){
+      var res = true;
+      var message = [];
+      $('input[required],textarea[required]').each(function(){
+        var el = $(this);
+        if (el.val()==''){
+          message.push('Field ' + el.attr('name') + ' required');
+          res = false;
+        }
+      });
+      if (res) return {success:true};
+      else return {success:false, message:message.join('<br/>')};
+    }
+
+
+    Polymer({
+      is: "new-review",
+      setajax: function () {
+        $('.errors').html();
+        var check = checkInput();
+        if (check.success){
+          var username = this.$.id_username.value;
+          var product = this.$.id_product.value;
+          var body = this.$.id_body.value;
+          this.$.ajax_new.body = ["username="+username,"product="+product,"body="+body].join('&');
+          this.$.ajax_new.generateRequest();
+        }else{
+          $('.errors').html(check.message);
+        }
+      },
+      hresponse: function(request) {
+        // console.log(request.detail.response);
+        $('.out').hide();
+        this.fire('success');
+      },
+      showdialog: function(){
+        $('.out').show();
+      },
+      hideDialog: function(){
+        $('.out').hide();
+      }
+    });
+  </script>
+</dom-module>
