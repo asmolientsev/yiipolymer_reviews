@@ -2,6 +2,15 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
 
+<!--
+`<new-review>` injects a ability for creating new review into your page.
+
+In typical use, just slap some `<new-review>` at your body:
+
+    <body>
+      <new-review url="`url`"></new-review>
+-->
+
 <dom-module id="new-review" attributes="url">
   <style>
     .out {
@@ -34,7 +43,6 @@
       padding: 10px 0;
     }
     .add {
-      /*display: block;*/
       background-color: rgb(21,101,192);
       color:white;
       padding:5px 15px;
@@ -84,6 +92,11 @@
     <div>
   </template>
   <script>
+    /**
+       * Function for checking input data
+       * return {success:true} if ok, and {success:false, message:`message`} if not
+       * @function checkInput
+    */
     function checkInput(){
       var res = true;
       var message = [];
@@ -99,8 +112,22 @@
     }
 
 
+    /**
+       * Fired when geeting `data` from backend server. Using for add out listeners
+       *
+       * @event success
+    */
     Polymer({
       is: "new-review",
+      properties: {
+        /** Url for getting data. */
+        url: String,
+      },
+      /**
+       * method checking input data and send data to server
+       *
+       * @method setajax
+       */
       setajax: function () {
         $('.errors').html();
         var check = checkInput();
@@ -114,14 +141,28 @@
           $('.errors').html(check.message);
         }
       },
+      /**
+       * Fired when geeting `data` from backend server.
+       *
+       * @event hresponse
+       */
       hresponse: function(request) {
-        // console.log(request.detail.response);
         $('.out').hide();
         this.fire('success');
       },
+      /**
+       * method showing dialog for input data
+       *
+       * @method showdialog
+       */
       showdialog: function(){
         $('.out').show();
       },
+      /**
+       * method hide dialog
+       *
+       * @method hideDialog
+       */
       hideDialog: function(){
         $('.out').hide();
       }

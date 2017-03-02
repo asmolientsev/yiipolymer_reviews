@@ -2,7 +2,16 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
 <link rel="import" href="new-review.html">
+<!--
+`<reviews-list>` injects a list of reviews into your page.
 
+In typical use, just slap some `<reviews-list>` at your body:
+
+    <body>
+      <reviews-list apiroot=""></reviews-list>
+
+Wham! It's all reviews now!
+-->
 
 <dom-module id="reviews-list" attributes="params">
   <template>
@@ -63,21 +72,26 @@
   </template>
 
   <script>
-    
-            $(document).on('click', '.checkuser', function(){
-                $('article').removeClass('active');
-                $(this).parent().addClass('active');
-                var _text = $(this).next().html();
-                var _time = new Date(parseInt($(this).next().next().html()));
-                $('.view').html(_text+', <br/>created:'+_time);
-                return false;
-            });
+    /**
+       * Listener for click event of users,  show body and created data
+       * 
+       * @listener  `user` click
+    */
+    $(document).on('click', '.checkuser', function(){
+      $('article').removeClass('active');
+      $(this).parent().addClass('active');
+      var _text = $(this).next().html();
+      var _time = new Date(parseInt($(this).next().next().html()));
+      $('.view').html(_text+', <br/>created: '+_time);
+      return false;
+    });
 
     Polymer({
 
       is: 'reviews-list',
 
       properties: {
+        /** Backend Server name for getting data. */
         apiroot: String,
       },
 
@@ -87,9 +101,19 @@
         this.$.ajax_list.generateRequest();
         
       },
+      /**
+       * method calls when need get new state of data from backend server.
+       *
+       * @method updateReviews
+       */
       updateReviews: function() {
         this.$.ajax_list.generateRequest();
       },
+      /**
+       * Fired when geeting `data` from backend server.
+       *
+       * @event hresponse
+       */
       hresponse: function(){
         var ironAjax = this.$.ajax_list;
         if (ironAjax.lastResponse!=undefined){
