@@ -58,9 +58,13 @@ Wham! It's all reviews now!
     <div class="menu">
         <template is="dom-repeat" items="{{data}}" id="reviews-template">
             <article id="{{item._id}}">
-               <a href="javascript:void(0)" class="checkuser" onclick="clickUser(this)">User: {{item.username}}, Product: {{item.product}} </a> 
+               <a href="javascript:void(0)" class="checkuser" on-click="clickUser">User: {{item.username}}, Product: {{item.product}} </a> 
+               <span class="hidden-body username">{{item.username}}</span>
+               <span class="hidden-body product">{{item.product}}</span>
                <span class="hidden-body body">{{item.body}}</span>
                <span class="hidden-body created">{{item.created_at}}</span>
+               <a href="javascript:void(0)" class="edituser" on-click="editUser">edit</a>
+               <a href="javascript:void(0)" class="deleteuser" on-click="deleteUser">del</a>
                <br/>
             </article>
         </template>
@@ -71,23 +75,6 @@ Wham! It's all reviews now!
   </template>
 
   <script>
-    /**
-       * Listener for click event of users,  show body and created data
-       * 
-       * @listener  `user` click
-    */
-    function clickUser(el){
-      var activeArticle = document.querySelector('article.active');
-      if (activeArticle)
-        activeArticle.classList.remove('active');
-      var parent = el.parentNode;
-      parent.classList.add('active');
-      var _text = parent.querySelector('.body').innerHTML;
-      var _time = new Date(parseInt(parent.querySelector('.created').innerHTML));
-      document.querySelector('.view').innerHTML = _text+', <br/>created: '+_time;
-      return false;
-    };
-
     Polymer({
 
       is: 'reviews-list',
@@ -119,9 +106,49 @@ Wham! It's all reviews now!
        */
       hresponse: function(){
         var ironAjax = this.$.ajax_list;
+        var self = this;
         if (ironAjax.lastResponse!=undefined){
-            setTimeout(function(){document.querySelector('.checkuser').click();},500);
+            setTimeout(function(){self.$$('.checkuser').click();},500);
         }
+      },
+      /**
+       * Listener for click event of users,  show body and created data
+       * 
+       * @listener  `user` click
+      */
+      clickUser: function(e){
+        var el = e.target;
+        var activeArticle = this.$$('article.active');
+        if (activeArticle)
+          activeArticle.classList.remove('active');
+        var parent = el.parentNode;
+        parent.classList.add('active');
+        var _text = parent.querySelector('.body').textContent;
+        var _time = new Date(parseInt(parent.querySelector('.created').textContent));
+        this.$$('.view').innerHTML = _text+', <br/>created: '+_time;
+        return false;
+      },
+      /**
+       * Listener for click event of users,  show body and edit user data
+       * 
+       * @listener  `edituser` click
+      */
+      editUser: function(e){
+        var parent = e.target.parentNode;
+        this.$.new_review.new_id = parent.id;
+        obj = {
+          username: parent.querySelector('.username').textContent, 
+          product: parent.querySelector('.product').textContent,
+          body: parent.querySelector('.body').textContent
+        };
+        this.$.new_review.updateItem(obj);
+        return false;
+      },
+      deleteUser: function(e){
+        var parent = e.target.parentNode;
+        this.$.new_review.new_id = parent.id;
+        this.$.new_review.deleteItem();
+        return false;
       }
     });
   </script>

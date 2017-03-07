@@ -25,7 +25,7 @@ In typical use, just slap some `<new-review>` at your body:
       top:20%;
       left:30%;
       width:400px;
-      height:360px;
+      min-height:360px;
       background-color: white; 
       padding: 20px;
     }
@@ -51,14 +51,15 @@ In typical use, just slap some `<new-review>` at your body:
       display: none;
       font-style: italic;
       color: red;
+      margin-top: -8px;
     }
-    .has-errors + ul.errors{       
+    .has-errors  ul.errors{       
       display: block;
     }
-    .has-errors + input, .has-errors + textarea {
+    .has-errors  input, .has-errors  textarea {
       border-color: red;
     }
-    .has-success + input, .has-success + textarea {
+    .has-success  input, .has-success  textarea {
       border-color: green;
     } 
     .close {
@@ -81,9 +82,9 @@ In typical use, just slap some `<new-review>` at your body:
     <div>
       <button on-click="addItem" class="add">Add</button>
     </div>
-    <div class="out hidden" on-click="hideDialog">
+    <div class="out hidden" on-click="hideDialogClick">
       <div class="in">
-          <a href="javascript:void(0)" class="close" on-click="hideDialog">close</a>
+          <a href="javascript:void(0)" class="close" on-click="hideDialogClick">close</a>
           <h2>Add new review</h2>
           <div class="p10">* - field required</div>
           <div>
@@ -107,29 +108,6 @@ In typical use, just slap some `<new-review>` at your body:
     <div>
   </template>
   <script>
-
-    function checkSimpleInput(item){
-      var res = true;
-      var messages = [];
-      item.value = '';
-      item.parentNode.classList.remove('has-errors');
-      item.parentNode.classList.remove('has-success');
-      var errorsList = el.parentNode.querySelector('.errors');
-      errorsList.innerHTML = '';
-            
-      if (item.hasAttribute('required') && item.value==''){
-        var text = 'Field ' + item.name + ' required';
-          messages.push(text:text, field:'id_'+item.name);
-          res = false;
-          item.parentNode.classList.add('has-errors');
-          var node = document.createElement("LI");
-          node.text = text;
-          errorsList.appendChild(node);
-      }else{
-          item.parentNode.classList.add('has-success');
-      }
-      return {success: res, messages:messages};
-    }
     /**
        * Fired when geeting `data` from backend server. Using for add out listeners
        *
@@ -175,7 +153,7 @@ In typical use, just slap some `<new-review>` at your body:
        * @method showdialog
        */
       showDialog: function(){
-        document.querySelector('.out').classList.remove('hidden');
+        this.$$('.out').classList.remove('hidden');
       },
       /**
        * method hide dialog
@@ -183,8 +161,16 @@ In typical use, just slap some `<new-review>` at your body:
        * @method hideDialog
        */
       hideDialog: function(e){
+        this.$$('.out').classList.add('hidden');
+      },
+      /**
+       * event click for hide dialog
+       *
+       * @method hideDialogClick
+       */
+      hideDialogClick: function(e){
         if (e.target==e.currentTarget)
-          document.querySelector('.out').classList.add('hidden');
+          this.hideDialog();
       },
       /**
        * method clear input data
@@ -204,10 +190,11 @@ In typical use, just slap some `<new-review>` at your body:
       checkInputs: function(){
         var res = true;
         var messages = [];
-        document.querySelectorAll('input,textarea').forEeach(function(item){
-          var out = checkSimpleInput(item);
-          messages + out.messages;
-          res = res && out.res;
+        var self = this;
+        Polymer.dom(this.root).querySelectorAll('input,textarea').forEach(function(item){
+          var out = self._checkSimpleInput(item);
+          messages += out.messages;
+          res = res && out.success;
         });
         if (res) return {success:true};
         else return {success:false, messages:messages};
@@ -215,13 +202,42 @@ In typical use, just slap some `<new-review>` at your body:
       addItem: function(){
         this.new_id = null;
         this.method = "POST";
+        this.$.ajax_new.url = this.url;
         this.showDialog();
       },
       deleteItem: function(){
-
+        this.method = "DELETE";
+        this.$.ajax_new.url = this.url + '/' + this.new_id;
+        this.$.ajax_new.generateRequest();
       },
-      updateItem: function(){
-        
+      updateItem: function(obj){
+        this.method = "PUT";
+        this.$.ajax_new.url = this.url + '/' + this.new_id;
+        this.$.id_username.value = obj.username;
+        this.$.id_product.value = obj.product;
+        this.$.id_body.value = obj.body;
+        this.showDialog();
+      },
+      _checkSimpleInput: function(item){
+        var res = true;
+        var messages = [];
+        item.parentNode.classList.remove('has-errors');
+        item.parentNode.classList.remove('has-success');
+        var errorsList = item.parentNode.querySelector('.errors');
+        errorsList.innerHTML = '';
+              
+        if (item.hasAttribute('required') && item.value==''){
+          var text = 'Field ' + item.name + ' required';
+            messages.push({text:text, field:'id_'+item.name});
+            res = false;
+            item.parentNode.classList.add('has-errors');
+            var node = document.createElement("LI");
+            node.textContent = text;
+            errorsList.appendChild(node);
+        }else{
+            item.parentNode.classList.add('has-success');
+        }
+        return {success: res, messages:messages};
       }
     });
   </script>
