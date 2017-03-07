@@ -19,8 +19,9 @@ Wham! It's all reviews now!
         display: block;
       }
       .menu {
-        width:30%;
+        width:35%;
         float:left;
+        padding-left: 10px;
       }
       .view {
         margin-left: 40%;
@@ -39,8 +40,25 @@ Wham! It's all reviews now!
       .pl20 {
         padding-left: 20px;
       }
+      .pr20 {
+        padding-right: 20px;
+      }
       .mb10 {
         margin-bottom: 10px;
+      }
+      article {
+        display: table-row;
+      }
+      article a {
+        display: table-cell;
+        padding: 7px 5px;
+        border-bottom: 1px solid #ccc;
+        text-decoration: none;
+        outline: none;
+      }
+      h1 {
+        border-bottom: 1px dotted #ccc;
+        padding-bottom: 10px;
       }
     </style>
     <iron-ajax
@@ -51,14 +69,14 @@ Wham! It's all reviews now!
         last-response="{{data}}"
         on-response="hresponse">
     </iron-ajax>
-    <div class="pl20 mb10">
+    <div class="pl20 mb10 pr20">
         <h1>Reviews</h1>
         <new-review url="{{endpoint}}" id="new_review"></new-review>
     </div>
     <div class="menu">
         <template is="dom-repeat" items="{{data}}" id="reviews-template">
             <article id="{{item._id}}">
-               <a href="javascript:void(0)" class="checkuser" on-click="clickUser">User: {{item.username}}, Product: {{item.product}} </a> 
+               <a href="javascript:void(0)" class="checkuser" on-click="clickUser">User: {{item.username}}, Product: {{item.product}} </a>
                <span class="hidden-body username">{{item.username}}</span>
                <span class="hidden-body product">{{item.product}}</span>
                <span class="hidden-body body">{{item.body}}</span>
@@ -104,11 +122,13 @@ Wham! It's all reviews now!
        *
        * @event hresponse
        */
-      hresponse: function(){
+      hresponse: function(e, request){
         var ironAjax = this.$.ajax_list;
         var self = this;
         if (ironAjax.lastResponse!=undefined){
             setTimeout(function(){self.$$('.checkuser').click();},500);
+            // var headers = request.xhr.getAllResponseHeaders();
+            // alert(headers)
         }
       },
       /**
@@ -145,9 +165,11 @@ Wham! It's all reviews now!
         return false;
       },
       deleteUser: function(e){
-        var parent = e.target.parentNode;
-        this.$.new_review.new_id = parent.id;
-        this.$.new_review.deleteItem();
+        if (confirm('Are you sure that you want delete item?')){
+          var parent = e.target.parentNode;
+          this.$.new_review.new_id = parent.id;
+          this.$.new_review.deleteItem();
+        }  
         return false;
       }
     });

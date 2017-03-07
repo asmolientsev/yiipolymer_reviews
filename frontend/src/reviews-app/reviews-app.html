@@ -16,8 +16,31 @@ In typical use, just slap some `<reviews-app>` at your body:
       :host {
         display: block;
       }
+      
+      .stretch-wrapper {
+          background: #ffffff none repeat scroll 0 0;
+          border-left: 1px solid #dcdcdc;
+          border-right: 1px solid #dcdcdc;
+          box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+          margin: 0 auto;
+          max-width: 1600px;
+          min-width: 1000px;
+          padding-top: 56px;
+          position: relative;
+          min-height: 590px;
+      }
+      .stretch-wrapper_small {
+          max-width: none;
+          width: 1000px;
+      }
+      .clearboth {
+        clear: both;
+      }
     </style>
-    <reviews-list apiroot="http://yiipolymer.home">Loading...</reviews-list>
+    <div class="stretch-wrapper stretch-wrapper_small">
+      <reviews-list apiroot="http://yiipolymer.home">Loading...</reviews-list>
+      <div class="clearboth"></div>
+    </div>
   </template>
 
   <script>
