@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>reviews-app test</title>
+
+    <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../../src/reviews-app/reviews-app.html">
+  </head>
+  <body>
+    <test-fixture id="simple-get">
+      <template>
+        <reviews-list apiroot="http://yiipolymer.home">Loading...</reviews-list>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('reviews-list', function() {
+        test('instantiating the element works', function() {
+          var element = fixture('simple-get');
+          assert.equal(element.is, 'reviews-list');
+        });
+
+        var reviews;
+        var request;
+        var server;
+        var responseHeaders = {
+           json: { 'Content-Type': 'application/json' }
+        };
+        setup(function() {
+          server = sinon.fakeServer.create();
+          server.respondWith(
+            'GET',
+            /http:\/\/yiipolymer\.home\.*/, [
+              200,
+              responseHeaders.json,
+              '{"success":true}'
+            ]
+          );
+        });
+        teardown(function() {
+          server.restore();
+        });
+        suite('when making simple GET requests for JSON', function() {
+          setup(function() {
+            reviews = fixture('simple-get');
+          });
+          test('has sane defaults that love you', function() {
+            request = reviews.updateReviews();
+            server.respond();
+            // console.log(request.response);
+            expect(request.response).to.be.ok;
+            expect(request.response).to.be.an('object');
+            expect(request.response.success).to.be.equal(true);
+          });
+          test('has the correct xhr method', function() {
+            request = reviews.updateReviews();
+            expect(request.xhr.method).to.be.equal('GET');
+          });
+        });
+
+      });
+    </script>
+  </body>
+</html>

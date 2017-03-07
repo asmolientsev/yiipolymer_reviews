@@ -1,6 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
 
 <!--
 `<new-review>` injects a ability for creating new review into your page.
@@ -20,7 +19,6 @@ In typical use, just slap some `<new-review>` at your body:
       background-color: rgba(0,0,0,0.5);
       top:0;
       left:0;
-      display:none;
     }
     .in {
       position: fixed;
@@ -49,11 +47,25 @@ In typical use, just slap some `<new-review>` at your body:
       border-radius: 5px;
       border:none;
     }
-    .errors {
+    ul.errors{
+      display: none;
       font-style: italic;
+      color: red;
     }
+    .has-errors + ul.errors{       
+      display: block;
+    }
+    .has-errors + input, .has-errors + textarea {
+      border-color: red;
+    }
+    .has-success + input, .has-success + textarea {
+      border-color: green;
+    } 
     .close {
       float:right;
+    }
+    .hidden {
+      display: none;
     }
   </style>
   <template>
@@ -61,15 +73,15 @@ In typical use, just slap some `<new-review>` at your body:
     <iron-ajax
         id="ajax_new"
         handle-as="json"
-        method="POST"
+        method={{method}}
         on-response="hresponse"
         debounce-duration="3000"
         url="{{url}}">
     </iron-ajax>
     <div>
-      <button on-click="showdialog" class="add">Add</button>
+      <button on-click="addItem" class="add">Add</button>
     </div>
-    <div class="out">
+    <div class="out hidden" on-click="hideDialog">
       <div class="in">
           <a href="javascript:void(0)" class="close" on-click="hideDialog">close</a>
           <h2>Add new review</h2>
@@ -77,14 +89,17 @@ In typical use, just slap some `<new-review>` at your body:
           <div>
               <label for="id_username">Username:*</label>
               <input type="text" name="username" id="id_username" required>
+              <ul class="errors"></ul>
           </div>
           <div>
               <label for="id_product">Product:*</label>
               <input type="text" name="product" id="id_product" required>
+              <ul class="errors"></ul>
           </div>
           <div>
               <label for="id_body">Review:*</label>
               <textarea name="body" id="id_body" required></textarea>
+              <ul class="errors"></ul>
           </div>
           <button on-click="setajax" class="add">Send data</button>
           <div class="errors"></div>
@@ -92,26 +107,29 @@ In typical use, just slap some `<new-review>` at your body:
     <div>
   </template>
   <script>
-    /**
-       * Function for checking input data
-       * return {success:true} if ok, and {success:false, message:`message`} if not
-       * @function checkInput
-    */
-    function checkInput(){
+
+    function checkSimpleInput(item){
       var res = true;
-      var message = [];
-      $('input[required],textarea[required]').each(function(){
-        var el = $(this);
-        if (el.val()==''){
-          message.push('Field ' + el.attr('name') + ' required');
+      var messages = [];
+      item.value = '';
+      item.parentNode.classList.remove('has-errors');
+      item.parentNode.classList.remove('has-success');
+      var errorsList = el.parentNode.querySelector('.errors');
+      errorsList.innerHTML = '';
+            
+      if (item.hasAttribute('required') && item.value==''){
+        var text = 'Field ' + item.name + ' required';
+          messages.push(text:text, field:'id_'+item.name);
           res = false;
-        }
-      });
-      if (res) return {success:true};
-      else return {success:false, message:message.join('<br/>')};
+          item.parentNode.classList.add('has-errors');
+          var node = document.createElement("LI");
+          node.text = text;
+          errorsList.appendChild(node);
+      }else{
+          item.parentNode.classList.add('has-success');
+      }
+      return {success: res, messages:messages};
     }
-
-
     /**
        * Fired when geeting `data` from backend server. Using for add out listeners
        *
@@ -122,6 +140,8 @@ In typical use, just slap some `<new-review>` at your body:
       properties: {
         /** Url for getting data. */
         url: String,
+        new_id: String,
+        method: String
       },
       /**
        * method checking input data and send data to server
@@ -129,16 +149,14 @@ In typical use, just slap some `<new-review>` at your body:
        * @method setajax
        */
       setajax: function () {
-        $('.errors').html();
-        var check = checkInput();
+        // document.querySelector('.errors').innerHTML = '';
+        var check = this.checkInputs();
         if (check.success){
           var username = this.$.id_username.value;
           var product = this.$.id_product.value;
           var body = this.$.id_body.value;
           this.$.ajax_new.body = ["username="+username,"product="+product,"body="+body].join('&');
           this.$.ajax_new.generateRequest();
-        }else{
-          $('.errors').html(check.message);
         }
       },
       /**
@@ -147,7 +165,7 @@ In typical use, just slap some `<new-review>` at your body:
        * @event hresponse
        */
       hresponse: function(request) {
-        $('.out').hide();
+        this.hideDialog();
         this.clearInputData();
         this.fire('success');
       },
@@ -156,16 +174,17 @@ In typical use, just slap some `<new-review>` at your body:
        *
        * @method showdialog
        */
-      showdialog: function(){
-        $('.out').show();
+      showDialog: function(){
+        document.querySelector('.out').classList.remove('hidden');
       },
       /**
        * method hide dialog
        *
        * @method hideDialog
        */
-      hideDialog: function(){
-        $('.out').hide();
+      hideDialog: function(e){
+        if (e.target==e.currentTarget)
+          document.querySelector('.out').classList.add('hidden');
       },
       /**
        * method clear input data
@@ -176,6 +195,33 @@ In typical use, just slap some `<new-review>` at your body:
         this.$.id_username.value = '';
         this.$.id_product.value = '';
         this.$.id_body.value = '';
+      },
+      /**
+       * Function for checking input data
+       * return {success:true} if ok, and {success:false, message:`message`} if not
+       * @function checkInput
+      */
+      checkInputs: function(){
+        var res = true;
+        var messages = [];
+        document.querySelectorAll('input,textarea').forEeach(function(item){
+          var out = checkSimpleInput(item);
+          messages + out.messages;
+          res = res && out.res;
+        });
+        if (res) return {success:true};
+        else return {success:false, messages:messages};
+      },
+      addItem: function(){
+        this.new_id = null;
+        this.method = "POST";
+        this.showDialog();
+      },
+      deleteItem: function(){
+
+      },
+      updateItem: function(){
+        
       }
     });
   </script>

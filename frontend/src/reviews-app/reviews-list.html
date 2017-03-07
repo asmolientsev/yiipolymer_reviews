@@ -1,6 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
 <link rel="import" href="new-review.html">
 <!--
 `<reviews-list>` injects a list of reviews into your page.
@@ -59,7 +58,7 @@ Wham! It's all reviews now!
     <div class="menu">
         <template is="dom-repeat" items="{{data}}" id="reviews-template">
             <article id="{{item._id}}">
-               <a href="javascript:void(0)" class="checkuser">User: {{item.username}}, Product: {{item.product}} </a> 
+               <a href="javascript:void(0)" class="checkuser" onclick="clickUser(this)">User: {{item.username}}, Product: {{item.product}} </a> 
                <span class="hidden-body body">{{item.body}}</span>
                <span class="hidden-body created">{{item.created_at}}</span>
                <br/>
@@ -77,14 +76,17 @@ Wham! It's all reviews now!
        * 
        * @listener  `user` click
     */
-    $(document).on('click', '.checkuser', function(){
-      $('article').removeClass('active');
-      $(this).parent().addClass('active');
-      var _text = $(this).next().html();
-      var _time = new Date(parseInt($(this).next().next().html()));
-      $('.view').html(_text+', <br/>created: '+_time);
+    function clickUser(el){
+      var activeArticle = document.querySelector('article.active');
+      if (activeArticle)
+        activeArticle.classList.remove('active');
+      var parent = el.parentNode;
+      parent.classList.add('active');
+      var _text = parent.querySelector('.body').innerHTML;
+      var _time = new Date(parseInt(parent.querySelector('.created').innerHTML));
+      document.querySelector('.view').innerHTML = _text+', <br/>created: '+_time;
       return false;
-    });
+    };
 
     Polymer({
 
@@ -98,6 +100,7 @@ Wham! It's all reviews now!
       ready: function() {
         this.endpoint = this.apiroot + '/api/reviews';
         this.listen(this.$.new_review, 'success', 'updateReviews');
+        
         this.$.ajax_list.generateRequest();
         
       },
@@ -117,7 +120,7 @@ Wham! It's all reviews now!
       hresponse: function(){
         var ironAjax = this.$.ajax_list;
         if (ironAjax.lastResponse!=undefined){
-            setTimeout(function(){$('.checkuser').eq(0).click();},500);
+            setTimeout(function(){document.querySelector('.checkuser').click();},500);
         }
       }
     });
