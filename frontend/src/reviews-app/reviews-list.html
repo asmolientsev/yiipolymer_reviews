@@ -56,6 +56,9 @@ Wham! It's all reviews now!
         border-bottom: 1px solid #ccc;
         text-decoration: none;
         outline: none;
+        background-repeat: no-repeat;
+        background-position: center;
+        min-width: 30px;
       }
       h1 {
         border-bottom: 1px dotted #ccc;
@@ -65,6 +68,12 @@ Wham! It's all reviews now!
         position: absolute;
         bottom: 30px;
         width:100%;
+      }
+      .edituser {
+        background-image: url(images/icon_table_edit.png);
+      }
+      .deleteuser {
+        background-image: url(images/icon_table_del.png);
       }
     </style>
     <iron-ajax
@@ -78,7 +87,7 @@ Wham! It's all reviews now!
     </iron-ajax>
     <div class="pl20 mb10 pr20">
         <h1>Reviews</h1>
-        <new-review url="{{endpoint}}" id="new_review"></new-review>
+        <new-review url="{{endpoint}}" title="Add new review" id="new_review"></new-review>
     </div>
     <div class="menu">
         <template is="dom-repeat" items="{{data}}" id="reviews-template">
@@ -88,8 +97,8 @@ Wham! It's all reviews now!
                <span class="hidden-body product">{{item.product}}</span>
                <span class="hidden-body body">{{item.body}}</span>
                <span class="hidden-body created">{{item.created_at}}</span>
-               <a href="javascript:void(0)" class="edituser" on-click="editUser">edit</a>
-               <a href="javascript:void(0)" class="deleteuser" on-click="deleteUser">del</a>
+               <a href="javascript:void(0)" class="edituser" on-click="editUser" alt="edit"></a>
+               <a href="javascript:void(0)" class="deleteuser" on-click="deleteUser" alt="del"></a>
                <br/>
             </article>
         </template>
@@ -176,6 +185,7 @@ Wham! It's all reviews now!
       editUser: function(e){
         var parent = e.target.parentNode;
         this.$.new_review.new_id = parent.id;
+        this.$.new_review.title = 'Edit review';
         obj = {
           username: parent.querySelector('.username').textContent, 
           product: parent.querySelector('.product').textContent,

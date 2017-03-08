@@ -19,6 +19,7 @@ In typical use, just slap some `<new-review>` at your body:
       background-color: rgba(0,0,0,0.2);
       top:0;
       left:0;
+      z-index: 9999;
     }
     .in {
       position: fixed;
@@ -76,6 +77,11 @@ In typical use, just slap some `<new-review>` at your body:
     } */
     .close {
       float:right;
+      background-image: url(images/icon_table_del.png);
+      height: 15px;
+      width: 15px;
+      background-repeat: no-repeat;
+      background-position: center;
     }
     .hidden {
       display: none;
@@ -96,8 +102,8 @@ In typical use, just slap some `<new-review>` at your body:
     </div>
     <div class="out hidden" on-click="hideDialogClick">
       <div class="in">
-          <a href="javascript:void(0)" class="close" on-click="hideDialogClick">close</a>
-          <h2>Add new review</h2>
+          <a href="javascript:void(0)" class="close" on-click="hideDialogClick" alt="close"></a>
+          <h2>{{title}}</h2>
           <div class="p10">* - field required</div>
           <div>
               <label for="id_username">Username:*</label>
@@ -216,6 +222,7 @@ In typical use, just slap some `<new-review>` at your body:
         else return {success:false, messages:messages};
       },
       addItem: function(){
+        this.title = 'Add new review';
         this.clearInputData();
         this.new_id = null;
         this.method = "POST";
