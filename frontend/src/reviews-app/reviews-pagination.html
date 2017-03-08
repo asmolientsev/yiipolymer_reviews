@@ -1,0 +1,141 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+
+<!--
+`<pagination>` injects a ability for creating pagination into your page.
+
+In typical use, just slap some `<new-review>` at your body:
+
+    <body>
+      <new-review url="`url`"></new-review>
+-->
+
+<dom-module id="reviews-pagination">
+  <style>
+    ul {
+      clear:both;
+      list-style: none;
+      display: block;
+      text-align: center;
+      padding: 20px;
+    }
+    li {
+      list-style: none;
+      display: inline;
+      padding: 0px 5px;
+    }
+    a {
+      text-decoration: none;
+      color: #777;
+    }
+    span {
+      color: #ccc; 
+    }
+    span.active {
+      color: #777;
+    }
+  </style>
+  <template>
+    <ul id="_pagination">
+    </ul>
+  </template>
+  <script>
+    /**
+       * Fired when geeting `data` from backend server. Using for add out listeners
+       *
+       * @event success
+    */
+    Polymer({
+      is: "reviews-pagination",
+      properties: {
+        /** Url for getting data. */
+        url: String,
+        current_page: Number,
+        page_count: Number
+      },
+      /**
+       * method calls when need generate link of pagination.
+       *
+       * @method generate
+       */
+      generate: function(){
+        this.$._pagination.innerHTML = '';
+
+        var node = document.createElement("LI");
+        node.classList.add('reviews-pagination');
+        if (this.current_page>1){
+          var subnode = document.createElement("A");
+          subnode.href = this.url + '&page=1';
+          subnode.addEventListener('click', this._click.bind(this));
+        }else{
+          var subnode = document.createElement("SPAN");
+        }
+        subnode.classList.add('reviews-pagination');
+        subnode.textContent = '<<';
+        node.appendChild(subnode);
+        this.$._pagination.appendChild(node);
+
+        node = document.createElement("LI");
+        node.classList.add('reviews-pagination');
+        if (this.current_page>1){
+          subnode = document.createElement("A");
+          subnode.href = this.url + '&page=' + (this.current_page-1);
+          subnode.addEventListener('click', this._click.bind(this));
+        }else{
+          subnode = document.createElement("SPAN");  
+        }
+        subnode.textContent = '<';
+        subnode.classList.add('reviews-pagination');
+        node.appendChild(subnode);
+        this.$._pagination.appendChild(node);
+
+        node = document.createElement("LI");
+        node.classList.add('reviews-pagination');
+        subnode = document.createElement("SPAN");
+        subnode.textContent = this.current_page;
+        subnode.classList.add('reviews-pagination');
+        subnode.classList.add('active');
+        node.appendChild(subnode);
+        this.$._pagination.appendChild(node);
+
+        node = document.createElement("LI");
+        node.classList.add('reviews-pagination');
+        if (this.current_page<this.page_count) {
+          subnode = document.createElement("A");
+          subnode.href = this.url + '&page=' + (this.current_page+1);
+          subnode.addEventListener('click', this._click.bind(this));
+        }else{
+          subnode = document.createElement("SPAN");
+        }
+        subnode.textContent = '>';
+        subnode.classList.add('reviews-pagination');
+        node.appendChild(subnode);
+        this.$._pagination.appendChild(node);
+
+        node = document.createElement("LI");
+        node.classList.add('reviews-pagination');
+        if (this.current_page<this.page_count) {
+          subnode = document.createElement("A");
+          subnode.href = this.url + '&page=' + this.page_count;
+          subnode.addEventListener('click', this._click.bind(this));
+        }else{
+          subnode = document.createElement("SPAN");
+        }
+        subnode.classList.add('reviews-pagination');
+        subnode.textContent = '>>';
+        node.appendChild(subnode);
+        this.$._pagination.appendChild(node);
+      },
+      /**
+       * Listener for click event of pagination link
+       * 
+       * @listener  `pagination link` click
+      */
+      _click: function(e){ 
+        e.preventDefault(); 
+        this.$.url = e.target.href; 
+        this.fire('clicklink');          
+      }
+    });
+  </script>
+</dom-module>

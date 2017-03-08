@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="new-review.html">
+<link rel="import" href="reviews-pagination.html">
 <!--
 `<reviews-list>` injects a list of reviews into your page.
 
@@ -60,6 +61,11 @@ Wham! It's all reviews now!
         border-bottom: 1px dotted #ccc;
         padding-bottom: 10px;
       }
+      .pagination {
+        position: absolute;
+        bottom: 30px;
+        width:100%;
+      }
     </style>
     <iron-ajax
         id="ajax_list"
@@ -86,9 +92,13 @@ Wham! It's all reviews now!
                <br/>
             </article>
         </template>
+        
     </div>
     <div class="view">
         
+    </div>
+    <div class="pagination">
+      <reviews-pagination url="{{endpoint}}" current_page="{{current_page}}" page_count="{{page_count}}" id="reviews_pagination"></reviews-pagination>
     </div>
   </template>
 
@@ -100,14 +110,22 @@ Wham! It's all reviews now!
       properties: {
         /** Backend Server name for getting data. */
         apiroot: String,
+        current_page: {
+          type: Number,
+          value: 0
+        },
+        page_count:  {
+          type: Number,
+          value: 0
+        }
       },
 
       ready: function() {
-        this.endpoint = this.apiroot + '/api/reviews';
+        this.endpoint = this.apiroot + '/api/reviews?per-page=5';
         this.listen(this.$.new_review, 'success', 'updateReviews');
+        this.listen(this.$.reviews_pagination, 'clicklink', 'updatePage');
         
         this.$.ajax_list.generateRequest();
-        
       },
       /**
        * method calls when need get new state of data from backend server.
@@ -127,8 +145,9 @@ Wham! It's all reviews now!
         var self = this;
         if (ironAjax.lastResponse!=undefined){
             setTimeout(function(){self.$$('.checkuser').click();},500);
-            // var headers = request.xhr.getAllResponseHeaders();
-            // alert(headers)
+            var headers = request.xhr.getAllResponseHeaders();
+            this._setDataPagination(headers);
+            this.$.reviews_pagination.generate();
         }
       },
       /**
@@ -164,6 +183,11 @@ Wham! It's all reviews now!
         this.$.new_review.updateItem(obj);
         return false;
       },
+      /**
+       * Listener for click event of users,  delete selected user
+       * 
+       * @listener  `deleteuser` click
+      */
       deleteUser: function(e){
         if (confirm('Are you sure that you want delete item?')){
           var parent = e.target.parentNode;
@@ -171,6 +195,32 @@ Wham! It's all reviews now!
           this.$.new_review.deleteItem();
         }  
         return false;
+      },
+      /**
+       * method calls when need add pagination.
+       *
+       * @method _setDataPagination
+       */
+      _setDataPagination: function(headers){
+        var self = this;
+        headers.split('\n').forEach(function(item){
+          var ars = item.split(':');
+          if (ars[0]=='X-Pagination-Page-Count')
+            self.page_count = parseInt(ars[1]);
+          else if (ars[0]=='X-Pagination-Current-Page')
+            self.current_page = parseInt(ars[1]);
+        });
+      },
+      /**
+       * method calls when need update data on page after clicks in pagination.
+       *
+       * @method updatePage
+       */
+      updatePage: function(){
+        var endpoint = this.endpoint;
+        this.endpoint = this.$.reviews_pagination.$.url;
+        this.updateReviews();
+        this.endpoint = endpoint;
       }
     });
   </script>

@@ -19,8 +19,15 @@ class ReviewController extends ActiveController {
 
 		$behaviors['corsFilter'] = [
 	        'class' => \yii\filters\Cors::className(),
+	        'cors' => [
+	        	'Access-Control-Expose-Headers' => ['X-Pagination-Current-Page', 'X-Pagination-Page-Count'],
+	        	'Access-Control-Allow-Headers' => 'Access-Control-Expose-Headers',
+	        	'Access-Control-Allow-Methods' => ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'],
+	        	'Origin' => ['*'],
+	        	'Access-Control-Request-Headers' => ['*'],
+	        ]
 	    ];
-
+	    // $behaviors['corsFilter']['cors']['Access-Control-Expose-Headers'] = ['X-Pagination-Current-Page'];
 		return $behaviors;
 	}
 }
