@@ -73,7 +73,8 @@ Wham! It's all reviews now!
         params="{params}"
         handle-as="json"
         last-response="{{data}}"
-        on-response="hresponse">
+        on-response="hresponse"
+        on-error="herror">
     </iron-ajax>
     <div class="pl20 mb10 pr20">
         <h1>Reviews</h1>
@@ -221,6 +222,9 @@ Wham! It's all reviews now!
         this.endpoint = this.$.reviews_pagination.$.url;
         this.updateReviews();
         this.endpoint = endpoint;
+      },
+      herror: function(e, request){
+        alert('Error: ' + (request.request.xhr.status ? request.request.xhr.statusText : 'request is not complete'));
       }
     });
   </script>
