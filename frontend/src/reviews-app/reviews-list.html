@@ -174,7 +174,7 @@ Wham! It's all reviews now!
         parent.classList.add('active');
         var _text = parent.querySelector('.body').textContent;
         var _time = new Date(parseInt(parent.querySelector('.created').textContent));
-        this.$$('.view').innerHTML = _text+', <br/>created: '+_time;
+        this.$$('.view').innerHTML = _text+', <br/><b>created:</b> '+_time.getDate() + "." + (_time.getMonth() + 1) + "." + _time.getFullYear();
         return false;
       },
       /**
