@@ -108,6 +108,7 @@ In typical use, just slap some `<new-review>` at your body:
           this.$.next_page_link.href = this.url + '&page=' + (this.current_page+1);
           this.$.next_page.classList.remove('disabled');
           this.$.last_page_link.href = this.url + '&page=' + this.page_count;
+          this.$.last_page.classList.remove('disabled');
         }else{
           this.$.next_page.classList.add('disabled');
           this.$.last_page.classList.add('disabled');
