@@ -31,12 +31,39 @@ In typical use, just slap some `<new-review>` at your body:
     span {
       color: #ccc; 
     }
-    span.active {
+    li span {
+      display: none;
+    }
+    li.disabled span {
+      display: inline;
+    }
+    li.disabled a {
+      display: none;
+    }
+    ul li span.active {
       color: #777;
+      display: inline;
     }
   </style>
   <template>
     <ul id="_pagination">
+      <li id="first_page">
+        <a href="#" id="first_page_link"><<</a>
+        <span id="first_page_text"><<</span>
+      </li>
+      <li id="prev_page">
+        <a href="#" id="prev_page_link"><</a>
+        <span id="prev_page_text"><</span>
+      </li>
+      <li><span id="current_page_text" class="active"></span></li>
+      <li id="next_page">
+        <a href="#" id="next_page_link">></a>
+        <span id="next_page_text">></span>
+      </li>
+      <li id="last_page">
+        <a href="#" id="last_page_link">>></a>
+        <span id="last_page_text">>></span>
+      </li>
     </ul>
   </template>
   <script>
@@ -53,78 +80,43 @@ In typical use, just slap some `<new-review>` at your body:
         current_page: Number,
         page_count: Number
       },
+      ready: function(){
+        var self = this;
+        Polymer.dom(this.root).querySelectorAll('#_pagination a').forEach(function(item){
+          item.addEventListener('click', self._click.bind(self));
+        });
+      },
       /**
        * method calls when need generate link of pagination.
        *
        * @method generate
        */
       generate: function(){
-        this.$._pagination.innerHTML = '';
-
-        var node = document.createElement("LI");
-        node.classList.add('reviews-pagination');
         if (this.current_page>1){
-          var subnode = document.createElement("A");
-          subnode.href = this.url + '&page=1';
-          subnode.addEventListener('click', this._click.bind(this));
+          this.$.first_page_link.href = this.url + '&page=1';
+          this.$.first_page.classList.remove('disabled');
+          this.$.prev_page_link.href = this.url + '&page=' + (this.current_page-1);
+          this.$.prev_page.classList.remove('disabled');
         }else{
-          var subnode = document.createElement("SPAN");
+          this.$.first_page.classList.add('disabled');
+          this.$.prev_page.classList.add('disabled');
         }
-        subnode.classList.add('reviews-pagination');
-        subnode.textContent = '<<';
-        node.appendChild(subnode);
-        this.$._pagination.appendChild(node);
+        
+        this.$.current_page_text.textContent = this.current_page;
 
-        node = document.createElement("LI");
-        node.classList.add('reviews-pagination');
-        if (this.current_page>1){
-          subnode = document.createElement("A");
-          subnode.href = this.url + '&page=' + (this.current_page-1);
-          subnode.addEventListener('click', this._click.bind(this));
-        }else{
-          subnode = document.createElement("SPAN");  
-        }
-        subnode.textContent = '<';
-        subnode.classList.add('reviews-pagination');
-        node.appendChild(subnode);
-        this.$._pagination.appendChild(node);
-
-        node = document.createElement("LI");
-        node.classList.add('reviews-pagination');
-        subnode = document.createElement("SPAN");
-        subnode.textContent = this.current_page;
-        subnode.classList.add('reviews-pagination');
-        subnode.classList.add('active');
-        node.appendChild(subnode);
-        this.$._pagination.appendChild(node);
-
-        node = document.createElement("LI");
-        node.classList.add('reviews-pagination');
         if (this.current_page<this.page_count) {
-          subnode = document.createElement("A");
-          subnode.href = this.url + '&page=' + (this.current_page+1);
-          subnode.addEventListener('click', this._click.bind(this));
+          this.$.next_page_link.href = this.url + '&page=' + (this.current_page+1);
+          this.$.next_page.classList.remove('disabled');
+          this.$.last_page_link.href = this.url + '&page=' + this.page_count;
         }else{
-          subnode = document.createElement("SPAN");
+          this.$.next_page.classList.add('disabled');
+          this.$.last_page.classList.add('disabled');
         }
-        subnode.textContent = '>';
-        subnode.classList.add('reviews-pagination');
-        node.appendChild(subnode);
-        this.$._pagination.appendChild(node);
 
-        node = document.createElement("LI");
-        node.classList.add('reviews-pagination');
-        if (this.current_page<this.page_count) {
-          subnode = document.createElement("A");
-          subnode.href = this.url + '&page=' + this.page_count;
-          subnode.addEventListener('click', this._click.bind(this));
-        }else{
-          subnode = document.createElement("SPAN");
-        }
-        subnode.classList.add('reviews-pagination');
-        subnode.textContent = '>>';
-        node.appendChild(subnode);
-        this.$._pagination.appendChild(node);
+        if (this.page_count==1)
+          this.$._pagination.style.display = 'none';
+        else
+          this.$._pagination.style.display = 'block';
       },
       /**
        * Listener for click event of pagination link

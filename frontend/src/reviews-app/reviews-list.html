@@ -127,11 +127,16 @@ Wham! It's all reviews now!
         page_count:  {
           type: Number,
           value: 0
-        }
+        },
+        show_errors: {
+          type: Number,
+          value: 1
+        },
       },
 
       ready: function() {
         this.endpoint = this.apiroot + '/api/reviews?per-page=5';
+        
         this.listen(this.$.new_review, 'success', 'updateReviews');
         this.listen(this.$.reviews_pagination, 'clicklink', 'updatePage');
         
@@ -154,6 +159,7 @@ Wham! It's all reviews now!
         var ironAjax = this.$.ajax_list;
         var self = this;
         if (ironAjax.lastResponse!=undefined){
+            this.show_errors = 0;
             setTimeout(function(){self.$$('.checkuser').click();},500);
             var headers = request.xhr.getAllResponseHeaders();
             this._setDataPagination(headers);
@@ -234,7 +240,8 @@ Wham! It's all reviews now!
         this.endpoint = endpoint;
       },
       herror: function(e, request){
-        alert('Error: ' + (request.request.xhr.status ? request.request.xhr.statusText : 'request is not complete'));
+        if (this.show_errors)
+          alert('Error: ' + (request.request.xhr.status ? request.request.xhr.statusText : 'request is not complete'));
       }
     });
   </script>
