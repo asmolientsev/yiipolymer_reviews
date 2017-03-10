@@ -69,11 +69,38 @@ Wham! It's all reviews now!
         bottom: 30px;
         width:100%;
       }
-      .edituser {
+      .editreview {
         background-image: url(images/icon_table_edit.png);
       }
-      .deleteuser {
+      .deletereview {
         background-image: url(images/icon_table_del.png);
+      }
+      .sort {
+        float: right;
+      }
+      .sort label {
+        float: left;
+        line-height: 36px;
+        margin-right: 10px;
+      }
+      .custom-select {
+          background: #f7f7f7 url("images/select_arrow.png") no-repeat scroll 167px 13px;
+          border-radius: 5px;
+          box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+          height: 30px;
+          overflow: hidden;
+          width: 190px;
+          float: left;
+      }
+      .custom-select select {
+          background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+          border: 0 none;
+          color: #4f4f4f;
+          font: 14px Arial;
+          height: 30px;
+          outline: 0 none;
+          padding: 6px 8px;
+          width: 200px;
       }
     </style>
     <iron-ajax
@@ -87,22 +114,32 @@ Wham! It's all reviews now!
     </iron-ajax>
     <div class="pl20 mb10 pr20">
         <h1>Reviews</h1>
+        <div class="sort">
+          <label for="sort_reviews">Sort:</label>
+          <div class="custom-select">
+            <select id="sort_reviews" on-change="sortReviews">
+              <option value="">----</option>
+              <option value="username">Username</option>
+              <option value="product">Product</option>
+            </select>
+          </div>
+        </div>
         <new-review url="{{endpoint}}" title="Add new review" id="new_review"></new-review>
+        
     </div>
     <div class="menu">
         <template is="dom-repeat" items="{{data}}" id="reviews-template">
             <article id="{{item._id}}">
-               <a href="javascript:void(0)" class="checkuser" on-click="clickUser">User: {{item.username}}, Product: {{item.product}} </a>
+               <a href="javascript:void(0)" class="checkuser" on-click="clickReview">User: {{item.username}}, Product: {{item.product}} </a>
                <span class="hidden-body username">{{item.username}}</span>
                <span class="hidden-body product">{{item.product}}</span>
                <span class="hidden-body body">{{item.body}}</span>
                <span class="hidden-body created">{{item.created_at}}</span>
-               <a href="javascript:void(0)" class="edituser" on-click="editUser" alt="edit"></a>
-               <a href="javascript:void(0)" class="deleteuser" on-click="deleteUser" alt="del"></a>
+               <a href="javascript:void(0)" class="editreview" on-click="editReview" alt="edit"></a>
+               <a href="javascript:void(0)" class="deletereview" on-click="deleteReview" alt="del"></a>
                <br/>
             </article>
-        </template>
-        
+        </template>   
     </div>
     <div class="view">
         
@@ -132,10 +169,11 @@ Wham! It's all reviews now!
           type: Number,
           value: 1
         },
+        sort: String
       },
 
       ready: function() {
-        this.endpoint = this.apiroot + '/api/reviews?per-page=5';
+        this.endpoint = this.apiroot + '/api/reviews?per-page=5' + '&sort=' + this.sort;
         
         this.listen(this.$.new_review, 'success', 'updateReviews');
         this.listen(this.$.reviews_pagination, 'clicklink', 'updatePage');
@@ -148,6 +186,7 @@ Wham! It's all reviews now!
        * @method updateReviews
        */
       updateReviews: function() {
+        this.endpoint = this.apiroot + '/api/reviews?per-page=5&page=' + this.current_page + '&sort=' + this.sort;
         return this.$.ajax_list.generateRequest();
       },
       /**
@@ -169,9 +208,9 @@ Wham! It's all reviews now!
       /**
        * Listener for click event of users,  show body and created data
        * 
-       * @listener  `user` click
+       * @listener  `review` click
       */
-      clickUser: function(e){
+      clickReview: function(e){
         var el = e.target;
         var activeArticle = this.$$('article.active');
         if (activeArticle)
@@ -184,11 +223,11 @@ Wham! It's all reviews now!
         return false;
       },
       /**
-       * Listener for click event of users,  show body and edit user data
+       * Listener for click event of reviews, edit review data
        * 
-       * @listener  `edituser` click
+       * @listener  `editreview` click
       */
-      editUser: function(e){
+      editReview: function(e){
         var parent = e.target.parentNode;
         this.$.new_review.new_id = parent.id;
         this.$.new_review.title = 'Edit review';
@@ -201,11 +240,11 @@ Wham! It's all reviews now!
         return false;
       },
       /**
-       * Listener for click event of users,  delete selected user
+       * Listener for click event of reviews,  delete selected review
        * 
-       * @listener  `deleteuser` click
+       * @listener  `deletereview` click
       */
-      deleteUser: function(e){
+      deleteReview: function(e){
         if (confirm('Are you sure that you want delete item?')){
           var parent = e.target.parentNode;
           this.$.new_review.new_id = parent.id;
@@ -234,14 +273,16 @@ Wham! It's all reviews now!
        * @method updatePage
        */
       updatePage: function(){
-        var endpoint = this.endpoint;
-        this.endpoint = this.$.reviews_pagination.$.url;
+        this.current_page = this.$.reviews_pagination.$.url;
         this.updateReviews();
-        this.endpoint = endpoint;
       },
       herror: function(e, request){
         if (this.show_errors)
           alert('Error: ' + (request.request.xhr.status ? request.request.xhr.statusText : 'request is not complete'));
+      },
+      sortReviews: function(e){
+        this.sort = e.target.value;
+        this.updateReviews();
       }
     });
   </script>
