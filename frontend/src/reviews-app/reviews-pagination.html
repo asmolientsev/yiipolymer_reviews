@@ -48,20 +48,20 @@ In typical use, just slap some `<new-review>` at your body:
   <template>
     <ul id="_pagination">
       <li id="first_page">
-        <a href="#" id="first_page_link" page=""><<</a>
+        <a href="#" id="first_page_link" page="1" delta="0"><<</a>
         <span id="first_page_text"><<</span>
       </li>
       <li id="prev_page">
-        <a href="#" id="prev_page_link" page=""><</a>
+        <a href="#" id="prev_page_link" page$={{current_page}} delta="-1"><</a>
         <span id="prev_page_text"><</span>
       </li>
-      <li><span id="current_page_text" class="active"></span></li>
+      <li><span id="current_page_text" class="active">{{current_page}}</span></li>
       <li id="next_page">
-        <a href="#" id="next_page_link" page="">></a>
+        <a href="#" id="next_page_link" page$="{{current_page}}" delta="1">></a>
         <span id="next_page_text">></span>
       </li>
       <li id="last_page">
-        <a href="#" id="last_page_link" page="">>></a>
+        <a href="#" id="last_page_link" page$="{{page_count}}" delta="0">>></a>
         <span id="last_page_text">>></span>
       </li>
     </ul>
@@ -75,10 +75,14 @@ In typical use, just slap some `<new-review>` at your body:
     Polymer({
       is: "reviews-pagination",
       properties: {
-        /** Url for getting data. */
-        url: String,
-        current_page: Number,
-        page_count: Number
+        current_page: {
+          type: Number,
+          observer: '_generate'
+        },
+        page_count: {
+          type: Number,
+          observer: '_generate'
+        },
       },
       ready: function(){
         var self = this;
@@ -87,27 +91,21 @@ In typical use, just slap some `<new-review>` at your body:
         });
       },
       /**
-       * method calls when need generate link of pagination.
+       * Listener calls when need activate link of pages.
        *
-       * @method generate
+       * @listener _generate
        */
-      generate: function(){
+      _generate: function(){
         if (this.current_page>1){
-          this.$.first_page_link.setAttribute('page',1);
           this.$.first_page.classList.remove('disabled');
-          this.$.prev_page_link.setAttribute('page',this.current_page-1);
           this.$.prev_page.classList.remove('disabled');
         }else{
           this.$.first_page.classList.add('disabled');
           this.$.prev_page.classList.add('disabled');
         }
-        
-        this.$.current_page_text.textContent = this.current_page;
 
         if (this.current_page<this.page_count) {
-          this.$.next_page_link.setAttribute('page',this.current_page+1);
           this.$.next_page.classList.remove('disabled');
-          this.$.last_page_link.setAttribute('page',this.page_count);
           this.$.last_page.classList.remove('disabled');
         }else{
           this.$.next_page.classList.add('disabled');
@@ -126,7 +124,7 @@ In typical use, just slap some `<new-review>` at your body:
       */
       _click: function(e){ 
         e.preventDefault(); 
-        this.current_page = e.target.getAttribute('page'); 
+        this.current_page = parseInt(e.target.getAttribute('page')) + parseInt(e.target.getAttribute('delta')); 
         this.fire('clicklink');          
       }
     });

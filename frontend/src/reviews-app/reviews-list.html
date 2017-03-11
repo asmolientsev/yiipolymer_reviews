@@ -102,6 +102,12 @@ Wham! It's all reviews now!
           padding: 6px 8px;
           width: 210px;
       }
+      @-moz-document url-prefix() { 
+          select {
+             color: transparent !important;
+             text-shadow: 0 0 0 #000 !important;
+          }
+      }
     </style>
     <iron-ajax
         id="ajax_list"
@@ -156,10 +162,12 @@ Wham! It's all reviews now!
       properties: {
         /** Backend Server name for getting data. */
         apiroot: String,
+        /** Number of page for getting data. */
         current_page: {
           type: Number,
           value: 1
         },
+        /** Count of pages for getting data. */
         page_count:  {
           type: Number,
           value: 0
@@ -168,6 +176,7 @@ Wham! It's all reviews now!
           type: Number,
           value: 1
         },
+        /** Field for order getting data. */
         sort: {
           type: String,
           value: ""
@@ -202,7 +211,7 @@ Wham! It's all reviews now!
             setTimeout(function(){self.$$('.checkuser').click();},500);
             var headers = request.xhr.getAllResponseHeaders();
             this._setDataPagination(headers);
-            this.$.reviews_pagination.generate();
+            // this.$.reviews_pagination.generate();
         }
       },
       /**
@@ -276,6 +285,11 @@ Wham! It's all reviews now!
         this.current_page = this.$.reviews_pagination.current_page;
         this.updateReviews();
       },
+      /**
+       * Fired when geeting `error` when sending request to backend server.
+       *
+       * @event herror
+       */
       herror: function(e, request){
         if (this.show_errors)
           alert('Error: ' + (request.request.xhr.status ? request.request.xhr.statusText : 'request is not complete'));
