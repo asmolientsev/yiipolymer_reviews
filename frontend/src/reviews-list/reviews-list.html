@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="new-review.html">
-<link rel="import" href="reviews-pagination.html">
+<link rel="import" href="../new-review/new-review.html">
+<link rel="import" href="../simple-pagination/simple-pagination.html">
 <!--
 `<reviews-list>` injects a list of reviews into your page.
 
@@ -18,6 +18,8 @@ Wham! It's all reviews now!
     <style>
       :host {
         display: block;
+        --active-item-color: #eee;
+        --border-bottom-color: #ccc;
       }
       .menu {
         width:35%;
@@ -35,7 +37,7 @@ Wham! It's all reviews now!
         padding: 10px 20px;
       }
       article.active {
-        background-color: #eee;
+        background-color: var(--active-item-color);
         color: black;
       }
       .pl20 {
@@ -53,7 +55,7 @@ Wham! It's all reviews now!
       article a {
         display: table-cell;
         padding: 7px 5px;
-        border-bottom: 1px solid #ccc;
+        border-bottom: 1px solid var(--border-bottom-color);
         text-decoration: none;
         outline: none;
         background-repeat: no-repeat;
@@ -61,7 +63,7 @@ Wham! It's all reviews now!
         min-width: 30px;
       }
       h1 {
-        border-bottom: 1px dotted #ccc;
+        border-bottom: 1px dotted var(--border-bottom-color);
         padding-bottom: 10px;
       }
       .pagination {
@@ -108,6 +110,25 @@ Wham! It's all reviews now!
              text-shadow: 0 0 0 #000 !important;
           }
       }
+      @media screen and (max-width: 600px){
+        .menu {
+          width:60%;
+          margin-right: 10px;
+        }
+      }
+      @media screen and (max-width: 600px){
+        .sort { 
+          float: left;
+          width:100%;
+          margin-bottom:10px;
+        }
+        .menu {
+          margin-top: 10px;
+        }
+        .pagination {
+          position: static;
+        }
+      }
     </style>
     <iron-ajax
         id="ajax_list"
@@ -150,7 +171,7 @@ Wham! It's all reviews now!
         
     </div>
     <div class="pagination">
-      <reviews-pagination url="{{endpoint}}" current_page="{{current_page}}" page_count="{{page_count}}" id="reviews_pagination"></reviews-pagination>
+      <simple-pagination url="{{endpoint}}" current_page="{{current_page}}" page_count="{{page_count}}" id="reviews_pagination"></simple-pagination>
     </div>
   </template>
 
@@ -240,7 +261,7 @@ Wham! It's all reviews now!
         var parent = e.target.parentNode;
         this.$.new_review.new_id = parent.id;
         this.$.new_review.title = 'Edit review';
-        obj = {
+        var obj = {
           username: parent.querySelector('.username').textContent, 
           product: parent.querySelector('.product').textContent,
           body: parent.querySelector('.body').textContent

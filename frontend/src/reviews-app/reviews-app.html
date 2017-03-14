@@ -1,5 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="reviews-list.html">
+<link rel="import" href="../reviews-list/reviews-list.html">
 
 <!--
 `<reviews-app>` injects application for working with reviews into your page.
@@ -15,26 +15,32 @@ In typical use, just slap some `<reviews-app>` at your body:
     <style>
       :host {
         display: block;
-      }
-      
+      }  
       .stretch-wrapper {
           background: #ffffff none repeat scroll 0 0;
           border-left: 1px solid #dcdcdc;
           border-right: 1px solid #dcdcdc;
           box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
           margin: 0 auto;
-          max-width: 1600px;
-          min-width: 1000px;
+          /*max-width: 1600px;
+          min-width: 1000px;*/
           padding-top: 56px;
           position: relative;
           min-height: 590px;
       }
       .stretch-wrapper_small {
-          max-width: none;
-          width: 1000px;
+          margin-left: 10%;
+          margin-right: 10%;
       }
       .clearboth {
         clear: both;
+      }
+      @media screen and (max-width:1000px){
+        .stretch-wrapper_small {
+            margin-left: 0%;
+            margin-right: 0%;
+            min-height: 0;
+        }
       }
     </style>
     <div class="stretch-wrapper stretch-wrapper_small">
